@@ -20,8 +20,6 @@
 		100000000000000000000111 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000011 /* DashboardView.swift */; };
 		100000000000000000000112 /* IncomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000012 /* IncomeView.swift */; };
 		100000000000000000000113 /* BudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000013 /* BudgetView.swift */; };
-		100000000000000000000114 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000014 /* Assets.xcassets */; };
-		100000000000000000000115 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000015 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -350,7 +348,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QKQ96U8G27;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Budgtr;
@@ -381,7 +379,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = QKQ96U8G27;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Budgtr;
