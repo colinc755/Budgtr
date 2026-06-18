@@ -95,3 +95,69 @@ enum BudgetCategoryKind: String, CaseIterable, Identifiable, Codable {
     }
 }
 
+enum BudgetBucketKind: String, CaseIterable, Identifiable, Codable {
+    case essentialSpend
+    case discretionarySpend
+    case retirement
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .essentialSpend: "Essential Spend"
+        case .discretionarySpend: "Discretionary Spend"
+        case .retirement: "Retirement"
+        }
+    }
+}
+
+enum BudgetLineItemTiming: String, CaseIterable, Identifiable, Codable {
+    case recurring
+    case singlePurchase
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .recurring: "Recurring"
+        case .singlePurchase: "Single Purchase"
+        }
+    }
+}
+
+enum PaycheckItemKind: String, CaseIterable, Identifiable, Codable {
+    case federal
+    case payroll
+    case state
+    case city
+    case property
+    case vehicleTax
+    case preTaxDeductions
+    case postTaxDeductions
+    case retirement
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .federal: "Federal"
+        case .payroll: "Payroll"
+        case .state: "State"
+        case .city: "City Tax"
+        case .property: "Property"
+        case .vehicleTax: "Vehicle Tax"
+        case .preTaxDeductions: "Pre-Tax Deductions"
+        case .postTaxDeductions: "Post-Tax Deductions"
+        case .retirement: "Retirement"
+        }
+    }
+
+    var defaultTiming: DeductionTiming {
+        switch self {
+        case .preTaxDeductions, .retirement:
+            .preTax
+        case .federal, .payroll, .state, .city, .property, .vehicleTax, .postTaxDeductions:
+            .postTax
+        }
+    }
+}

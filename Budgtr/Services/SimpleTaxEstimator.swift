@@ -2,8 +2,7 @@ import Foundation
 
 struct SimpleTaxEstimator {
     func estimateFederalIncomeTax(taxableIncome: Double, filingStatus: FilingStatus) -> Double {
-        let standardDeduction = standardDeduction(for: filingStatus)
-        let bracketIncome = max(taxableIncome - standardDeduction, 0)
+        let bracketIncome = max(taxableIncome, 0)
         let brackets = federalBrackets(for: filingStatus)
 
         var remainingIncome = bracketIncome
@@ -39,14 +38,6 @@ struct SimpleTaxEstimator {
         let socialSecurityTax = min(max(grossIncome, 0), socialSecurityWageBase) * 0.062
         let medicareTax = max(grossIncome, 0) * 0.0145
         return socialSecurityTax + medicareTax
-    }
-
-    private func standardDeduction(for filingStatus: FilingStatus) -> Double {
-        switch filingStatus {
-        case .single: 14_600
-        case .marriedJointly: 29_200
-        case .headOfHousehold: 21_900
-        }
     }
 
     private func federalBrackets(for filingStatus: FilingStatus) -> [TaxBracket] {
@@ -89,4 +80,3 @@ private struct TaxBracket {
     let upperBound: Double
     let rate: Double
 }
-

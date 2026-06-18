@@ -5,5 +5,6 @@ struct ContentView: View {
 
     var body: some View {
         RootTabView(store: store)
+            .dismissKeyboardOnBackgroundTap()
     }
 }

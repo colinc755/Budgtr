@@ -16,16 +16,20 @@ struct DashboardView: View {
         return TakeHomePayCalculator().estimate(profile: store.profile, income: income)
     }
 
-    private var totalAllocated: Double {
-        currentMonth?.allocations.reduce(0) { $0 + $1.plannedAmount } ?? 0
+    private var monthlyInflow: Double {
+        estimate?.monthlyNetIncome ?? currentMonth?.expectedInflow ?? 0
     }
 
-    private var totalUsed: Double {
-        currentMonth?.allocations.reduce(0) { $0 + $1.usedAmount } ?? 0
+    private var totalAllocated: Double {
+        store.profile.budgetBuckets.reduce(0) { $0 + $1.allocatedAmount(from: monthlyInflow) }
+    }
+
+    private var totalPlanned: Double {
+        store.profile.budgetBuckets.reduce(0) { $0 + $1.plannedSpend }
     }
 
     private var totalRemaining: Double {
-        currentMonth?.allocations.reduce(0) { $0 + $1.remainingAmount } ?? 0
+        monthlyInflow - totalPlanned
     }
 
     var body: some View {
@@ -50,7 +54,7 @@ struct DashboardView: View {
 
                     HStack(spacing: 12) {
                         MetricTile(title: "Allocated", amount: totalAllocated)
-                        MetricTile(title: "Used", amount: totalUsed)
+                        MetricTile(title: "Planned", amount: totalPlanned)
                         MetricTile(title: "Remaining", amount: totalRemaining)
                     }
 
@@ -58,16 +62,16 @@ struct DashboardView: View {
                         Text("Current Month")
                             .font(.headline)
 
-                        ForEach((currentMonth?.allocations ?? []).sorted { $0.categoryName < $1.categoryName }) { allocation in
+                        ForEach(store.profile.budgetBuckets.sorted { $0.displayOrder < $1.displayOrder }) { bucket in
                             VStack(alignment: .leading, spacing: 6) {
                                 HStack {
-                                    Text(allocation.categoryName)
+                                    Text(bucket.kind.displayName)
                                     Spacer()
-                                    Text(allocation.remainingAmount, format: MoneyFormatting.currency)
-                                        .foregroundStyle(allocation.remainingAmount >= 0 ? Color.primary : Color.red)
+                                    Text(bucket.remainingAmount(from: monthlyInflow), format: MoneyFormatting.currency)
+                                        .foregroundStyle(bucket.remainingAmount(from: monthlyInflow) >= 0 ? Color.primary : Color.red)
                                 }
 
-                                ProgressView(value: min(max(allocation.usedAmount / max(allocation.availableAmount, 1), 0), 1))
+                                ProgressView(value: min(max(bucket.plannedSpend / max(bucket.allocatedAmount(from: monthlyInflow), 1), 0), 1))
                             }
                             .padding(.vertical, 6)
                         }

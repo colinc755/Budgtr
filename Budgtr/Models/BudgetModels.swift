@@ -5,9 +5,12 @@ struct BudgetProfile: Identifiable, Codable {
     var name: String
     var workState: String
     var filingStatusRaw: String
+    var federalStandardDeduction: Double
+    var stateStandardDeduction: Double
     var createdAt: Date
     var incomeSources: [IncomeSource]
     var categories: [BudgetCategory]
+    var budgetBuckets: [BudgetBucket]
     var months: [BudgetMonth]
 
     init(
@@ -15,24 +18,128 @@ struct BudgetProfile: Identifiable, Codable {
         name: String = "My Budget",
         workState: String = "TX",
         filingStatus: FilingStatus = .single,
+        federalStandardDeduction: Double = 14_600,
+        stateStandardDeduction: Double = 0,
         createdAt: Date = .now,
         incomeSources: [IncomeSource] = [],
         categories: [BudgetCategory] = [],
+        budgetBuckets: [BudgetBucket] = [],
         months: [BudgetMonth] = []
     ) {
         self.id = id
         self.name = name
         self.workState = workState
         self.filingStatusRaw = filingStatus.rawValue
+        self.federalStandardDeduction = federalStandardDeduction
+        self.stateStandardDeduction = stateStandardDeduction
         self.createdAt = createdAt
         self.incomeSources = incomeSources
         self.categories = categories
+        self.budgetBuckets = budgetBuckets
         self.months = months
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case workState
+        case filingStatusRaw
+        case federalStandardDeduction
+        case stateStandardDeduction
+        case createdAt
+        case incomeSources
+        case categories
+        case budgetBuckets
+        case months
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.workState = try container.decode(String.self, forKey: .workState)
+        self.filingStatusRaw = try container.decode(String.self, forKey: .filingStatusRaw)
+        self.federalStandardDeduction = try container.decodeIfPresent(Double.self, forKey: .federalStandardDeduction) ?? 14_600
+        self.stateStandardDeduction = try container.decodeIfPresent(Double.self, forKey: .stateStandardDeduction) ?? 0
+        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+        self.incomeSources = try container.decode([IncomeSource].self, forKey: .incomeSources)
+        self.categories = try container.decode([BudgetCategory].self, forKey: .categories)
+        self.budgetBuckets = try container.decodeIfPresent([BudgetBucket].self, forKey: .budgetBuckets) ?? []
+        self.months = try container.decode([BudgetMonth].self, forKey: .months)
     }
 
     var filingStatus: FilingStatus {
         get { FilingStatus(rawValue: filingStatusRaw) ?? .single }
         set { filingStatusRaw = newValue.rawValue }
+    }
+}
+
+struct BudgetBucket: Identifiable, Codable {
+    var id: UUID
+    var kindRaw: String
+    var allocationShare: Double
+    var displayOrder: Int
+    var lineItems: [BudgetLineItem]
+
+    init(
+        id: UUID = UUID(),
+        kind: BudgetBucketKind,
+        allocationShare: Double,
+        displayOrder: Int,
+        lineItems: [BudgetLineItem] = []
+    ) {
+        self.id = id
+        self.kindRaw = kind.rawValue
+        self.allocationShare = allocationShare
+        self.displayOrder = displayOrder
+        self.lineItems = lineItems
+    }
+
+    var kind: BudgetBucketKind {
+        get { BudgetBucketKind(rawValue: kindRaw) ?? .essentialSpend }
+        set { kindRaw = newValue.rawValue }
+    }
+
+    func allocatedAmount(from monthlyInflow: Double) -> Double {
+        monthlyInflow * allocationShare
+    }
+
+    var plannedSpend: Double {
+        lineItems.reduce(0) { $0 + $1.amount }
+    }
+
+    func remainingAmount(from monthlyInflow: Double) -> Double {
+        allocatedAmount(from: monthlyInflow) - plannedSpend
+    }
+}
+
+struct BudgetLineItem: Identifiable, Codable {
+    var id: UUID
+    var name: String
+    var amount: Double
+    var timingRaw: String
+    var createdAt: Date
+    var systemKey: String?
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        amount: Double,
+        timing: BudgetLineItemTiming = .recurring,
+        createdAt: Date = .now,
+        systemKey: String? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.timingRaw = timing.rawValue
+        self.createdAt = createdAt
+        self.systemKey = systemKey
+    }
+
+    var timing: BudgetLineItemTiming {
+        get { BudgetLineItemTiming(rawValue: timingRaw) ?? .recurring }
+        set { timingRaw = newValue.rawValue }
     }
 }
 
@@ -44,6 +151,7 @@ struct IncomeSource: Identifiable, Codable {
     var retirementContributionRate: Double
     var createdAt: Date
     var deductions: [Deduction]
+    var paycheckItems: [PaycheckItem]
 
     init(
         id: UUID = UUID(),
@@ -52,7 +160,8 @@ struct IncomeSource: Identifiable, Codable {
         payFrequency: PayFrequency = .biweekly,
         retirementContributionRate: Double = 0.06,
         createdAt: Date = .now,
-        deductions: [Deduction] = []
+        deductions: [Deduction] = [],
+        paycheckItems: [PaycheckItem] = []
     ) {
         self.id = id
         self.name = name
@@ -61,11 +170,72 @@ struct IncomeSource: Identifiable, Codable {
         self.retirementContributionRate = retirementContributionRate
         self.createdAt = createdAt
         self.deductions = deductions
+        self.paycheckItems = paycheckItems
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case annualGrossIncome
+        case payFrequencyRaw
+        case retirementContributionRate
+        case createdAt
+        case deductions
+        case paycheckItems
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(UUID.self, forKey: .id)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.annualGrossIncome = try container.decode(Double.self, forKey: .annualGrossIncome)
+        self.payFrequencyRaw = try container.decode(String.self, forKey: .payFrequencyRaw)
+        self.retirementContributionRate = try container.decode(Double.self, forKey: .retirementContributionRate)
+        self.createdAt = try container.decode(Date.self, forKey: .createdAt)
+        self.deductions = try container.decode([Deduction].self, forKey: .deductions)
+        self.paycheckItems = try container.decodeIfPresent([PaycheckItem].self, forKey: .paycheckItems) ?? []
     }
 
     var payFrequency: PayFrequency {
         get { PayFrequency(rawValue: payFrequencyRaw) ?? .biweekly }
         set { payFrequencyRaw = newValue.rawValue }
+    }
+}
+
+struct PaycheckItem: Identifiable, Codable {
+    var id: UUID
+    var kindRaw: String
+    var annualAmount: Double
+    var timingRaw: String
+    var displayOrder: Int
+
+    init(
+        id: UUID = UUID(),
+        kind: PaycheckItemKind,
+        annualAmount: Double,
+        timing: DeductionTiming? = nil,
+        displayOrder: Int
+    ) {
+        self.id = id
+        self.kindRaw = kind.rawValue
+        self.annualAmount = annualAmount
+        self.timingRaw = (timing ?? kind.defaultTiming).rawValue
+        self.displayOrder = displayOrder
+    }
+
+    var kind: PaycheckItemKind {
+        get { PaycheckItemKind(rawValue: kindRaw) ?? .federal }
+        set { kindRaw = newValue.rawValue }
+    }
+
+    var timing: DeductionTiming {
+        get { DeductionTiming(rawValue: timingRaw) ?? kind.defaultTiming }
+        set { timingRaw = newValue.rawValue }
+    }
+
+    func rate(of annualGrossIncome: Double) -> Double {
+        guard annualGrossIncome > 0 else { return 0 }
+        return annualAmount / annualGrossIncome
     }
 }
 
@@ -182,4 +352,3 @@ struct CategoryAllocation: Identifiable, Codable {
         set { carryoverRuleRaw = newValue.rawValue }
     }
 }
-

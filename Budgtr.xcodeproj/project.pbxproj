@@ -20,6 +20,7 @@
 		100000000000000000000111 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000011 /* DashboardView.swift */; };
 		100000000000000000000112 /* IncomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000012 /* IncomeView.swift */; };
 		100000000000000000000113 /* BudgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000013 /* BudgetView.swift */; };
+		100000000000000000000116 /* KeyboardDismissModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 100000000000000000000017 /* KeyboardDismissModifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -39,6 +40,7 @@
 		100000000000000000000014 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		100000000000000000000015 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		100000000000000000000016 /* Budgtr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Budgtr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		100000000000000000000017 /* KeyboardDismissModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDismissModifier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 				100000000000000000000011 /* DashboardView.swift */,
 				100000000000000000000012 /* IncomeView.swift */,
 				100000000000000000000013 /* BudgetView.swift */,
+				100000000000000000000017 /* KeyboardDismissModifier.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				100000000000000000000111 /* DashboardView.swift in Sources */,
 				100000000000000000000112 /* IncomeView.swift in Sources */,
 				100000000000000000000113 /* BudgetView.swift in Sources */,
+				100000000000000000000116 /* KeyboardDismissModifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
